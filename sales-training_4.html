@@ -86,6 +86,8 @@
   .response-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; font-size: 13px; }
   .response-card .rc-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
   .response-card .rc-text { color: var(--text); line-height: 1.6; font-style: italic; }
+  .response-card.weak { background: rgba(244,63,94,0.08); border-color: rgba(244,63,94,0.3); }
+  .response-card.weak .rc-label { color: var(--accent3); }
 
   .step-list { list-style: none; margin: 12px 0; }
   .step-list li { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; line-height: 1.6; align-items: flex-start; }
@@ -294,11 +296,11 @@
       <div class="section-body">
         <p class="body-text">Every word during value-building should assume they're already a customer. No "ifs." No "if you were to sign up." Just forward momentum.</p>
         <div class="response-grid">
-          <div class="response-card"><div class="rc-label">Weak</div><div class="rc-text">"If you were to sign up, my guy would come out and treat..."</div></div>
+          <div class="response-card weak"><div class="rc-label">Weak</div><div class="rc-text">"If you were to sign up, my guy would come out and treat..."</div></div>
           <div class="response-card"><div class="rc-label">Assumptive</div><div class="rc-text">"When my guy comes out, he's gonna treat your entire yard..."</div></div>
         </div>
         <div class="response-grid">
-          <div class="response-card"><div class="rc-label">Weak</div><div class="rc-text">"If this sounds good to you, we could get you on the schedule..."</div></div>
+          <div class="response-card weak"><div class="rc-label">Weak</div><div class="rc-text">"If this sounds good to you, we could get you on the schedule..."</div></div>
           <div class="response-card"><div class="rc-label">Assumptive</div><div class="rc-text">"So once we get you on the schedule, here's what's gonna happen..."</div></div>
         </div>
       </div>
