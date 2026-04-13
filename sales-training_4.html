@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales Training Program</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #161921;
+    --card: #1e2230;
+    --border: #2a2f42;
+    --accent: #e8c84a;
+    --accent2: #4a9ee8;
+    --accent3: #e84a7a;
+    --text: #eef0f7;
+    --muted: #7a80a0;
+    --success: #4ae8a0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; }
+  .container { max-width: 960px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+  header { padding: 64px 0 48px; border-bottom: 1px solid var(--border); margin-bottom: 48px; }
+  .label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  .label::before { content: ''; display: block; width: 24px; height: 1px; background: var(--accent); }
+  h1 { font-family: 'Playfair Display', serif; font-size: clamp(36px, 6vw, 64px); font-weight: 900; line-height: 1.05; letter-spacing: -1px; margin-bottom: 20px; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--muted); font-size: 16px; font-weight: 300; max-width: 480px; line-height: 1.7; }
+
+  .modules-nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 40px; }
+  .nav-btn { background: var(--surface); border: 1px solid var(--border); color: var(--muted); padding: 10px 20px; border-radius: 6px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; }
+  .nav-btn:hover, .nav-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+
+  .progress-bar { height: 2px; background: var(--border); border-radius: 2px; margin-bottom: 40px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; transition: width 0.4s ease; }
+
+  .module { display: none; animation: fadeUp 0.4s ease; }
+  .module.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+  .module-header { display: flex; align-items: flex-start; gap: 24px; margin-bottom: 32px; padding: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; position: relative; overflow: hidden; }
+  .module-header::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .module-num { font-family: 'Playfair Display', serif; font-size: 56px; font-weight: 900; color: var(--border); line-height: 1; flex-shrink: 0; user-select: none; }
+  .module-info h2 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .module-info p { color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+  .section { background: var(--card); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 14px; overflow: hidden; }
+  .section-header { padding: 16px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s; user-select: none; }
+  .section-header:hover { background: rgba(255,255,255,0.03); }
+  .section-title { font-size: 13px; font-weight: 600; letter-spacing: 0.5px; display: flex; align-items: center; gap: 10px; }
+  .section-tag { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 2px; padding: 3px 8px; border-radius: 3px; text-transform: uppercase; font-weight: 500; }
+  .tag-tip    { background: rgba(232,200,74,0.15);  color: var(--accent);  }
+  .tag-script { background: rgba(74,158,232,0.15);  color: var(--accent2); }
+  .tag-warn   { background: rgba(232,74,122,0.15);  color: var(--accent3); }
+  .tag-ok     { background: rgba(74,232,160,0.15);  color: var(--success); }
+  .chevron { width: 16px; height: 16px; fill: none; stroke: var(--muted); stroke-width: 2; transition: transform 0.3s; flex-shrink: 0; }
+  .section.open .chevron { transform: rotate(180deg); }
+  .section-body { display: none; padding: 0 20px 20px; border-top: 1px solid var(--border); }
+  .section.open .section-body { display: block; }
+
+  .script-block { background: var(--bg); border-left: 3px solid var(--accent2); border-radius: 0 6px 6px 0; padding: 16px 20px; margin: 12px 0; font-family: 'DM Mono', monospace; font-size: 13px; line-height: 1.9; color: #c8d4f0; }
+  .script-block strong { color: var(--text); font-weight: 500; }
+  .script-block em { color: var(--muted); font-style: normal; font-size: 11px; letter-spacing: 1px; }
+
+  .tip-block { background: rgba(232,200,74,0.06); border: 1px solid rgba(232,200,74,0.2); border-radius: 6px; padding: 14px 18px; margin: 12px 0; font-size: 13px; line-height: 1.7; color: #d4c890; }
+  .tip-block::before { content: '★ PRO TIP'; display: block; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--accent); margin-bottom: 6px; }
+
+  .warn-block { background: rgba(232,74,122,0.06); border: 1px solid rgba(232,74,122,0.2); border-radius: 6px; padding: 14px 18px; margin: 12px 0; font-size: 13px; line-height: 1.7; color: #d49090; }
+  .warn-block::before { content: '⚠ WATCH OUT'; display: block; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--accent3); margin-bottom: 6px; }
+
+  .branch-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  @media (max-width: 640px) { .branch-container { grid-template-columns: 1fr; } }
+
+  .branch { border-radius: 8px; overflow: hidden; }
+  .branch-header { padding: 10px 16px; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; font-weight: 600; }
+  .branch-buying .branch-header { background: rgba(74,232,160,0.15); color: var(--success); }
+  .branch-objection .branch-header { background: rgba(232,74,122,0.15); color: var(--accent3); }
+  .branch-body { background: var(--bg); border: 1px solid var(--border); border-top: none; padding: 14px 16px; font-size: 13px; line-height: 1.7; color: #9da4bf; border-radius: 0 0 8px 8px; }
+  .branch-body strong { color: var(--text); }
+
+  .response-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+  @media (max-width: 600px) { .response-grid { grid-template-columns: 1fr; } }
+  .response-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; font-size: 13px; }
+  .response-card .rc-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .response-card .rc-text { color: var(--text); line-height: 1.6; font-style: italic; }
+
+  .step-list { list-style: none; margin: 12px 0; }
+  .step-list li { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; line-height: 1.6; align-items: flex-start; }
+  .step-list li:last-child { border-bottom: none; }
+  .step-num { background: var(--accent); color: var(--bg); font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+
+  .roadmap-flow { display: flex; align-items: center; flex-wrap: wrap; gap: 0; margin: 16px 0; }
+  .flow-step { background: var(--surface); border: 1px solid var(--border); padding: 10px 14px; font-size: 12px; font-weight: 600; letter-spacing: 0.3px; border-radius: 6px; }
+  .flow-arrow { color: var(--accent); font-size: 18px; padding: 0 6px; }
+
+  p.body-text { font-size: 13px; line-height: 1.8; color: #9da4bf; margin: 10px 0; }
+
+  .divider-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin: 20px 0 10px; display: flex; align-items: center; gap: 12px; }
+  .divider-label::before, .divider-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .module-nav-footer { display: flex; justify-content: space-between; align-items: center; margin: 40px 0 64px; padding-top: 24px; border-top: 1px solid var(--border); }
+  .nav-foot-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 12px 24px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+  .nav-foot-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .nav-foot-btn:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+  .nav-foot-btn.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+  .nav-foot-btn.primary:hover { background: #f0d060; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="label">Door-to-Door Sales</div>
+    <h1>The Complete<br>Sales <span>Training</span><br>Program</h1>
+    <p class="subtitle">Four modules. One flow. Master the introduction, value, price, and close — and you have everything you need to go out and produce.</p>
+  </header>
+
+  <div class="modules-nav">
+    <button class="nav-btn active" onclick="showModule(0)">01 · Introduction</button>
+    <button class="nav-btn" onclick="showModule(1)">02 · Value</button>
+    <button class="nav-btn" onclick="showModule(2)">03 · Price</button>
+    <button class="nav-btn" onclick="showModule(3)">04 · Close</button>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="progress" style="width:25%"></div></div>
+
+  <!-- ===================== MODULE 1: INTRODUCTION ===================== -->
+  <div class="module active" id="mod-0">
+    <div class="module-header">
+      <div class="module-num">01</div>
+      <div class="module-info">
+        <h2>The Introduction</h2>
+        <p>You have about 10 seconds. Your intro needs to be natural, confident, and loaded with reasons for them to keep listening. Here's exactly how it flows.</p>
+      </div>
+    </div>
+
+    <div class="section open">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-title"><span class="section-tag tag-script">Script</span> The Full Introduction</div>
+        <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body">
+        <div class="script-block">
+          <strong>Hey, how's it going?</strong><br><br>
+          <strong>My name's [Name] — I'm with [Service]. So I've got about 6 or 7 of your neighbors I'm taking care of tomorrow...</strong><br><br>
+          <strong>Real quick — it's been a lot of these right up here in the eaves, and tons of cobwebs and spiders just on the back patio.</strong><br><br>
+          <strong>And the nice thing is, since my truck's already gonna be here today and tomorrow — you guys just get that same flat rate we're doing for the neighborhood.</strong>
+        </div>
+        <div class="tip-block">Notice what's in this intro: social proof (neighbors), a specific pain point (eaves, cobwebs, spiders), and a built-in reason to act now (truck's already here, flat rate). All in under 20 seconds.</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-title"><span class="section-tag tag-tip">Breakdown</span> Why This Intro Works</div>
+        <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body">
+        <ul class="step-list">
+          <li><div class="step-num">1</div><div><strong>Social proof up front.</strong> "6 or 7 of your neighbors" — you're already in the neighborhood, you're not a stranger, you're the guy everyone else is using.</div></li>
+          <li><div class="step-num">2</div><div><strong>Specific pain point.</strong> Don't say "bugs in general." Say the eaves. Say cobwebs on the back patio. Specific = believable. Generic = ignored.</div></li>
+          <li><div class="step-num">3</div><div><strong>Built-in scarcity.</strong> The truck being there today and tomorrow is real urgency. The flat neighborhood rate makes them feel like they'd be missing out to say no.</div></li>
+        </ul>
+        <div class="tip-block">Assumptive language starts here. Don't say "if you were interested..." — say "since my truck's already gonna be here." You're not asking for a meeting. You're telling them what's happening.</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-title"><span class="section-tag tag-ok">The Fork</span> Buying Question vs. Objection — Two Paths</div>
+        <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body">
+        <p class="body-text">After your intro, one of two things happens. Either they show interest — that's a buying question — or they push back. Here's how to read each one and where to go.</p>
+
+        <div class="branch-container">
+          <div class="branch branch-buying">
+            <div class="branch-header">&#x2713; BUYING QUESTION</div>
+            <div class="branch-body">
+              They ask: <strong>"How much is it?"</strong> or <strong>"What do you guys do exactly?"</strong> or <strong>"How often do you come out?"</strong><br><br>
+              This is a green light. They're interested. <strong>Join their team — get right next to them — and walk them through value, price, and close.</strong>
+            </div>
+          </div>
+          <div class="branch branch-objection">
+            <div class="branch-header">&#x2715; OBJECTION</div>
+            <div class="branch-body">
+              They say: <strong>"We already have someone," "We're good," or "Not interested."</strong><br><br>
+              This is not rejection — it's a speed bump. <strong>Neutralize it and get back on the road.</strong> See the objection script below.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-title"><span class="section-tag tag-script">Script</span> Handling the Objection — "We Already Have Someone"</div>
+        <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body">
+        <p class="body-text">The three most common objections you'll hear are: <em>"We already have someone," "We're good,"</em> and <em>"Not interested."</em> They all get handled the same way.</p>
+
+        <div class="script-block">
+          <em>THEY SAY:</em> "We already have someone." / "We're good." / "Not interested."<br><br>
+          <strong>No worries at all — who's taking care of you guys?</strong><br><br>
+          <em>THEY NAME THE COMPANY.</em><br><br>
+          <strong>Oh perfect. [Smile.] Awesome — great company.</strong><br><br>
+          <strong>I'm sure you've seen them treat the home before, right? Do the foundation, the inside — and probably give you a wipe-down if you see anything?</strong><br><br>
+          <em>THEY SAY YES.</em><br><br>
+          <strong>Perfect. Is there anything extra you're paying for on top of that, or is that pretty much it?</strong>
+        </div>
+
+        <div class="tip-block">Validate the competition. Never trash them. "Great company" disarms defensiveness immediately — now you're on the same team. You're curious, not competing.</div>
+
+        <div class="divider-label">Then go right into it</div>
+
+        <div class="script-block">
+          <strong>So the real beauty of why a lot of your neighbors are giving us a shot — and honestly why they're upgrading — is that I don't just do the foundation and perimeter of the home.</strong><br><br>
+          <strong>I treat all the [ants / spiders / whatever the neighborhood pain point is] — starting from the yard all the way through.</strong><br><br>
+          <em>&#8594; From here, move into Value.</em>
+        </div>
+
+        <div class="warn-block">Pick the specific bug that's the pain of that neighborhood and name it. "Ants and spiders" is fine as a default — but if you know it's been scorpions or wasps in that area, say that. Specific pain = real credibility.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== MODULE 2: VALUE ===================== -->
+  <div class="module" id="mod-1">
+    <div class="module-header">
+      <div class="module-num">02</div>
+      <div class="module-info">
+        <h2>Building Value</h2>
+        <p>Before price ever comes up, they need to feel the difference. Stack your value points one at a time, check in after each one, and make sure they're with you.</p>
+      </div>
+    </div>
+
+    <div class="section open">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-title"><span class="section-tag tag-ok">Framework</span> Join Their Team First</div>
+        <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body">
+        <p class="body-text">Whether they came in through a buying question or you just handled an objection — once you're in, <strong>get physically next to them.</strong> Side by side, not face to face. You're on their team now, showing them something together.</p>
+        <div class="roadmap-flow">
+          <div class="flow-step">Join their side</div><div class="flow-arrow">&#8594;</div>
+          <div class="flow-step">Value 1 — Yard/Perimeter</div><div class="flow-arrow">&#8594;</div>
+          <div class="flow-step">Check in</div><div class="flow-arrow">&#8594;</div>
+          <div class="flow-step">Value 2 — Eaves</div><div class="flow-arrow">&#8594;</div>
+          <div class="flow-step">Check in</div><div class="flow-arrow">&#8594;</div>
+          <div class="flow-step">Price</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-title"><span class="section-tag tag-script">Script</span> Value 1 — Full Yard & Perimeter</div>
+        <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body">
+        <div class="script-block">
+          <strong>So I don't just do the foundation and perimeter of the home — I start at the front curb and treat the entire yard, all the way to the back fence.</strong><br><br>
+          <strong>Because here's the thing — if you're not treating the yard where the bugs actually live and breed, they're just gonna keep making their way up into the walls no matter what you spray inside.</strong><br><br>
+          <strong>Does that make sense? Pretty cool, right?</strong>
+        </div>
+        <div class="tip-block">The check-in — "Does that make sense? Pretty cool, right?" — is non-negotiable. It keeps them engaged and gets a small yes before you move to the next point. Small yeses lead to the big yes.</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-title"><span class="section-tag tag-script">Script</span> Value 2 — Eaves & Roofline</div>
+        <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body">
+        <div class="script-block">
+          <strong>Something else I do for you guys every single service — I take a large 30-foot brush and de-web the full exterior of the house. Windows, doors included.</strong><br><br>
+          <strong>That way a lot of those mud daubers and spiders don't keep laying their eggs and nesting on the home.</strong><br><br>
+          <strong>That's important because if you don't stop them there, they're just gonna keep getting inside.</strong>
+        </div>
+        <div class="tip-block">Point up at the eaves when you say this. Physical gesture makes it real — they look up, they see the cobwebs, and you've just shown them their problem and your solution at the same time.</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-title"><span class="section-tag tag-ok">Assumptive Language</span> Sound Like the Sale Is Already Happening</div>
+        <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body">
+        <p class="body-text">Every word during value-building should assume they're already a customer. No "ifs." No "if you were to sign up." Just forward momentum.</p>
+        <div class="response-grid">
+          <div class="response-card"><div class="rc-label">Weak</div><div class="rc-text">"If you were to sign up, my guy would come out and treat..."</div></div>
+          <div class="response-card"><div class="rc-label">Assumptive</div><div class="rc-text">"When my guy comes out, he's gonna treat your entire yard..."</div></div>
+        </div>
+        <div class="response-grid">
+          <div class="response-card"><div class="rc-label">Weak</div><div class="rc-text">"If this sounds good to you, we could get you on the schedule..."</div></div>
+          <div class="response-card"><div class="rc-label">Assumptive</div><div class="rc-text">"So once we get you on the schedule, here's what's gonna happen..."</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== MODULE 3: PRICE ===================== -->
+  <div class="module" id="mod-2">
+    <div class="module-header">
+      <div class="module-num">03</div>
+      <div class="module-info">
+        <h2>Delivering Price</h2>
+        <p>Price is just a number. Delivered the right way — after value is built, with scarcity and a warranty — it lands like a deal, not a demand.</p>
+      </div>
+    </div>
+
+    <div class="section open">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-title"><span class="section-tag tag-ok">Framework</span> The Price Delivery Formula</div>
+        <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body">
+        <div class="roadmap-flow">
+          <div class="flow-step">Anchor High</div><div class="flow-arrow">&#8594;</div>
+          <div class="flow-step">Warranty</div><div class="flow-arrow">&#8594;</div>
+          <div class="flow-step">Scarcity Drop</div><div class="flow-arrow">&#8594;</div>
+          <div class="flow-step">Close</div>
+        </div>
+        <p class="body-text">Always say the full price first. Then the warranty. Then drop to the neighborhood rate. In that order, every time.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-title"><span class="section-tag tag-script">Script</span> The Price Delivery</div>
+        <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body">
+        <div class="script-block">
+          <strong>Perfect. So if you were to call our office or go online, the initial would normally be $399 — not gonna charge you that. After that it's just $179 every two months.</strong><br><br>
+          <strong>But since my truck's already gonna be here — I'm just gonna take $300 off. So it's just $99 for everything.</strong><br><br>
+          <strong>And the cool thing is — if you see any bugs between those two months, we're coming back same day or next day. Free.</strong>
+        </div>
+        <div class="tip-block">Let the $99 land. Don't rush past it. The contrast between $399 and $99 does the selling for you — pause, let it sit, then go straight into the route close.</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-title"><span class="section-tag tag-tip">Breakdown</span> Why the Warranty Matters</div>
+        <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body">
+        <p class="body-text">The warranty isn't just a feature — it's a risk remover. Most people don't buy because they're afraid they'll spend money and it won't work. The warranty neutralizes that fear completely.</p>
+        <ul class="step-list">
+          <li><div class="step-num">1</div><div>It shifts the risk onto you, not them</div></li>
+          <li><div class="step-num">2</div><div>It signals confidence — you'd only offer a guarantee if you knew the service worked</div></li>
+          <li><div class="step-num">3</div><div>It removes the "what if" objection before they can even raise it</div></li>
+        </ul>
+        <div class="warn-block">Don't breeze past the warranty. Slow down when you say it. "I guarantee it" delivered with certainty carries enormous weight. Rushing it throws away one of your best tools.</div>
+      </div>
+    </div>
+
+
+  <!-- ===================== MODULE 4: CLOSE ===================== -->
+  <div class="module" id="mod-3">
+    <div class="module-header">
+      <div class="module-num">04</div>
+      <div class="module-info">
+        <h2>The Close</h2>
+        <p>Right after price — no fluff, no long wind-up. Show them the opening, give them a specific time, and let the assumptive close do the work.</p>
+      </div>
+    </div>
+
+    <div class="section open">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-title"><span class="section-tag tag-script">Script</span> The Route Close</div>
+        <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body">
+        <div class="script-block">
+          <strong>Perfect. Let me show you this —</strong><br><br>
+          <strong>I do have this opening after the Johnsons at 4 PM. Does that work for you?</strong>
+        </div>
+        <div class="tip-block">That's it. You're not asking if they want to buy — you're asking if 4 PM works. The decision has already been made. All they're doing now is confirming the time.</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-title"><span class="section-tag tag-tip">Breakdown</span> Why This Close Works</div>
+        <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body">
+        <ul class="step-list">
+          <li><div class="step-num">1</div><div><strong>"Let me show you this"</strong> — pulls their attention in. Creates a micro moment of curiosity right before the ask.</div></li>
+          <li><div class="step-num">2</div><div><strong>"After the Johnsons"</strong> — real neighbor, real schedule. This isn't a vague offer. It's a specific slot that actually exists. Social proof and scarcity in four words.</div></li>
+          <li><div class="step-num">3</div><div><strong>"Does that work for you?"</strong> — you're not asking if they want to buy. You're asking if the time works. The sale is assumed. The only question left is logistics.</div></li>
+        </ul>
+        <div class="warn-block">After you say "Does that work for you?" — stop. Don't add anything. Don't soften it. Hold eye contact and wait. The first person to speak loses.</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-title"><span class="section-tag tag-ok">Assumptive Language</span> At the Close</div>
+        <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body">
+        <p class="body-text">The route close is already fully assumptive — but here's the contrast so reps can hear the difference clearly.</p>
+        <div class="response-grid">
+          <div class="response-card"><div class="rc-label">Hesitant</div><div class="rc-text">"So... do you think you'd want to go ahead and sign up today?"</div></div>
+          <div class="response-card"><div class="rc-label">Assumptive</div><div class="rc-text">"I've got an opening after the Johnsons at 4 PM — does that work for you?"</div></div>
+        </div>
+        <div class="response-grid">
+          <div class="response-card"><div class="rc-label">Hesitant</div><div class="rc-text">"Would you be okay with me scheduling something?"</div></div>
+          <div class="response-card"><div class="rc-label">Assumptive</div><div class="rc-text">"Let me get your name and address and we'll get you locked in."</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-title"><span class="section-tag tag-script">Script</span> If They Hesitate — Back Half Entry</div>
+        <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body">
+        <p class="body-text">If they say "I need to think about it" or "let me talk to my spouse" — don't panic. Don't walk. This is where the sale actually starts.</p>
+        <div class="script-block">
+          <strong>Hey, totally understand. But let me just ask you real quick — money aside for a second — does the overall idea of what I'm saying make sense to you? Like do you at least like the idea of what we're doing?</strong><br><br>
+          <em>THEY SAY YES.</em><br><br>
+          <strong>Of course it does — because it just makes sense, right? So let me just show you one more thing real quick...</strong><br><br>
+          <em>&#8594; Add another value point, then route close again.</em>
+        </div>
+        <div class="tip-block">Get them to agree the idea makes sense — that's the reset. It moves them from "I'm not sure" back to "I actually agree with you." Then you route close again, same as before.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="module-nav-footer">
+    <button class="nav-foot-btn" id="btn-prev" onclick="navigate(-1)" disabled>&#8592; Previous</button>
+    <button class="nav-foot-btn primary" id="btn-next" onclick="navigate(1)">Next Module &#8594;</button>
+  </div>
+
+</div>
+<script>
+  let current = 0;
+  const total = 4;
+  function showModule(i) {
+    document.querySelectorAll('.module').forEach((m, j) => m.classList.toggle('active', j === i));
+    document.querySelectorAll('.nav-btn').forEach((b, j) => b.classList.toggle('active', j === i));
+    current = i;
+    document.getElementById('progress').style.width = Math.round(((i + 1) / total) * 100) + '%';
+    document.getElementById('btn-prev').disabled = i === 0;
+    document.getElementById('btn-next').disabled = i === total - 1;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function navigate(dir) {
+    const next = current + dir;
+    if (next >= 0 && next < total) showModule(next);
+  }
+  function toggleSection(h) { h.parentElement.classList.toggle('open'); }
+</script>
+</body>
+</html>
